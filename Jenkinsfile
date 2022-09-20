@@ -1,12 +1,11 @@
-def project = "https://gitlab.com/oneicc/ifsm---field-manager.git"
-def devops_project = "https://gitlab.com/oneicc/icc.infrastructure.git"
-def env = "production-imv"
-def namespace = "dms-app"
+def dev_repo_imv = "https://github.com/Saaspiens/merchandising-plarform.git"
+def devops_project = "https://github.com/Saaspiens/ICC-IMV-DEV.git"
+def namespace = "imv-dev"
 properties([
         parameters([
-                gitParameter(branchFilter: 'origin/(.*)', defaultValue: 'master', name: 'BRANCH', type: 'PT_BRANCH', listSize: "10", useRepository: "${project}", quickFilterEnabled: true),
+                string(defaultValue: 'Merchandising', name: 'TAG'),
                  [$class: 'ChoiceParameter',
-                 choiceType: 'PT_MULTI_SELECT',
+                 choiceType: 'PT_SINGLE_SELECT',
                  description: 'Select Type for run',
                  filterLength: 1,
                  filterable: false,
@@ -14,206 +13,120 @@ properties([
                  randomName: 'choice-parameter-563132144557478619',
                  script: [
                          $class: 'GroovyScript',
-                         // fallbackScript: [
-                         //         classpath: [],
-                         //         sandbox: false,
-                         //         script:
-                         //                 'return[\'Could not get Type\']'
-                         // ],
                          script: [
                                  classpath: [],
                                  sandbox: false,
                                  script:
-                                         'return["backend", "frontend"]'
+                                         'return["backend","frontend"]'
                          ]
                  ]
                 ]
         ])
 ])
 pipeline {
+  agent any
   environment {
     registry = "https://registry-1.docker.io/v2/"
     registryCredential = 'dockerhub'
+    imageId = "registry.1retail-dev.asia/microservice-comatic-dev/${params.Service}:$BUILD_NUMBER"
+    docker_registry = 'https://registry.1retail-dev.asia'
+    docker_creds = credentials('harbor')
   }
-    agent none
-    stages {
-        stage('get config fe'){
-        agent { label "worker"}
-          steps{
+  stages {
+    stage('Clone & Build Code') {
+          steps {
             script {
-              dir("${env}"){
-                echo "===================== GET CONFIG FE ====================="
-                sh "./get_config_fe.sh ${env}"
-              }
-            }
-          }
-        }
-        stage('clone code') {
-        agent { label "worker"}
-            steps {
-              script {
-                currentBuild.displayName = "${params.Service}-${BUILD_NUMBER}-${params.BRANCH}"
-                dir("${env}/app-${params.Service}/src-branch-build"){
-                  echo "===================== CLONE CODE ====================="
-                  cloneCode(project, params.BRANCH)
-                  echo "===================== check current dir ====================="
-                  sh 'echo $PWD'
-                  echo "===================== check folder/file ====================="
-                  sh 'ls -lh '
-                  switch( params.Service.trim() ) {
+            currentBuild.displayName = "${params.Service}-${BUILD_NUMBER}-${params.TAG}"
+              switch( params.Service.trim() ) {
                     case "backend":
-                      echo "===================== build backend ====================="
-                      bebuild("SRC/Backend","SRC/Applications/DebugRunning.Application","v10.24.1")
-                      break;
+                          clonecode(dev_repo_imv)
+                          sh "ls -lh"
+                          //getconfigbe("Tenant.Application")
+                          bebuild("SRC/Backend", "v16.14.2")
+                          //efmigration("tenant")
+                          break;
                     case "frontend":
-                      echo "===================== build frontend ====================="
-                      febuild(env,"SRC/Frontend/fsm","v10.24.1")
-                      break;
+                          clonecode(dev_repo_imv)
+                          sh "ls -lh"
+                          //getconfigbe("User.Application")
+                          febuild("SRC/Frontend/fsm", "v16.14.2")
+                          //efmigration("user")
+                          break;
+              }
+           }
+         } 
+    }
+    stage('Build Docker') {
+            steps {
+              script {     
+                            
+                  currentBuild.displayName = "${params.Service}-${BUILD_NUMBER}-${params.TAG}"
+                  echo "===================== BUILD DOCKER IMAGE ====================="
+                  sh "sudo n 16.14.2"
+                  sh "node --version"
+                  sh "cp ${params.Service}/* src-build/"
+                  dir ("src-build"){
+                  sh "ls -lh"
+                  sh "pwd"
+                  //sh "ls -la src"
+                  sh "docker login $docker_registry --username $docker_creds_USR --password $docker_creds_PSW"
+                  sh "docker build -t $imageId ."
+                  sh "docker tag $imageId $imageId"
+                  sh "docker push $imageId"
+                  sh "docker logout"
+                  sh "docker rmi -f $imageId"
+                  //sh "docker rmi ${imageId}"
                   }
                 }
-              }
             }
-        }
-        stage('build') {
-        agent { label "worker"}
-            steps {
-              script {
-                currentBuild.displayName = "${params.Service}-${BUILD_NUMBER}-${params.BRANCH}"
-                dir("${env}/app-${params.Service}"){
-                  echo "===================== BUILD DOCKER IMAGE ====================="
-                  dockerbuild(env, params.Service, BUILD_NUMBER)
-                }
+      } 
+    stage('Deploy') {
+          steps {
+            checkout([$class: 'GitSCM', branches: [[name: '*/main']], doGenerateSubmoduleConfigurations: false, gitTool: 'NONE', extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'Github', url: devops_project]]])
+            script{
+                  sh "ls -la"
+                  echo "===================== Deploy - ${params.Service} ====================="
+                  sh "cd ${params.Service} \
+                      ls -l \
+                      && sed -i \"s/BUILD_NUMBER/${BUILD_NUMBER}/g\" Deployment.yaml \
+                      && kubectl apply -f Deployment.yaml --kubeconfig ~/.kube/config --record"
               }
-            }
-        }
-        stage("kubectl apply image") {
-        agent { label "master" }
-            steps {
-              script{
-                  echo "===================== APPLY / DEPLOY - NEW IMAGE  ====================="
-                  // if (params.Service.trim() == "backend") {
-                  deploy(env, params.Service, BUILD_NUMBER)
-                  // }
-              }
-              timeout(time: 120, unit: 'SECONDS') {
+              timeout(time: 3000, unit: 'SECONDS') {
                 echo "===================== WAITING UNTIL SERVICE LISTEN PORT SUCCESS  ====================="
-                rollout(env,namespace, params.Service)
+                sh  "kubectl rollout status deployment ${params.Service} -n $namespace"
               }
-            }
-        }
+          }
     }
-    post {
-        failure {
-            node('master') {
-                echo 'failed'
-                wrap([$class: 'BuildUser']) {
-                    sendTelegram("ON-STAGING-IMV | <i>${params.Service}-service</i> | ${JOB_NAME} | BRANCH ${params.BRANCH} | <b>FAILED</b> by ${BUILD_USER} | ${BUILD_URL}")
-                }
-            }
-        }
-        aborted {
-            node('master') {
-                echo 'aborted'
-                wrap([$class: 'BuildUser']) {
-                    sendTelegram("ON-STAGING-IMV | <i>${params.Service}-service</i> | ${JOB_NAME} | BRANCH ${params.BRANCH} | <b>ABORTED OR TIMEOUT</b> by ${BUILD_USER} | ${BUILD_URL}")
-                }
-            }
-        }
-        success {
-            node('master') {
-                echo 'success'
-                wrap([$class: 'BuildUser']) {
-                    sendTelegram("ON-STAGING-IMV | <i>${params.Service}-service</i> | ${JOB_NAME} | BRANCH ${params.BRANCH} | <b>SUCCESS</b> by ${BUILD_USER} | ${BUILD_URL}")
-                }
-            }
-        }
+    stage('Clean') {
+          steps {
+            sh "docker system prune -f"
+          }
     }
-}
-def onlydotnetbuild(_pathsource,_pathartifact) {
-  sh " cd ${_pathsource} \
-      && dotnet restore \
-      && dotnet build *.sln --configuration Release \
-      && cd ${_pathartifact} \
-      && dotnet publish -c Release -o out"
-}
-
-def bebuild(_pathsource,_pathartifact,_versionnode) {
-  sh " cd ${_pathsource} \
-      && dotnet restore \
-      && dotnet build *.sln --configuration Release \
-      && cd ${_pathartifact} \
-      && dotnet publish -c Release -o out \
-      && sudo n ${_versionnode} \
-      && node --version \
-      && npm --version \
-      && yarn --version \
-      && gulp --version \
-      && sed -i \"s/Debug/Release/g\" gulpfile.js \
-      && npm i -f \
-      && gulp copy-modules \
-      && cp -r Modulars out/"
-}
-
-def febuild(_env,_pathsource,_versionnode) {
-  sh " cd ${_pathsource} \
-      && sudo n ${_versionnode} \
-      && node --version \
-      && npm --version \
-      && yarn --version \
-      && gulp --version \
-      && rm -rf src/app-configs/app-config.json src/app-configs/app-config.scss \
-      && rsync -av /tmp/${_env}/app-config.json src/app-configs/ \
-      && rsync -av /tmp/${_env}/app-config.scss src/app-configs/ \
-      && cat src/app-configs/app-config.json \
-      && cat src/app-configs/app-config.scss \
-      && npm i \
-      && npm run build-prod"
-}
-
-def dockerbuild(_env, _service, _buildnumber) {
-  // sh "cp /tmp/*.json ."
-   app = docker.build("registry.oneicc.vn/dms/${_env}-${_service}-service:${_buildnumber}", "-f Dockerfile .")
-  // sh "docker build -f SRC/Infratructure/app-${_service}/Dockerfile -t giangaws/${_service}-service:${_buildnumber} ."
-  // sh "docker login --username giangaws --password && docker push giangaws/${_service}-service:${_buildnumber}"
-  // docker.withRegistry('https://registry-1.docker.io/v2/', 'dockerhub') {
-  docker.withRegistry('https://registry.oneicc.vn', 'harbor') {
-    app.push("${_buildnumber}")
-    // app.push("latest")
   }
-}
-
-def build(_env, _service, _buildnumber) {
-  sh "cp /tmp/*.json ."
-  sh "cp /tmp/*.scss ."
-  app = docker.build("registry.oneicc.vn/dms/${_env}-${_service}-service:${_buildnumber}", "-f ${_env}/app-${_service}/Dockerfile .")
-  // sh "docker build -f SRC/Infratructure/app-${_service}/Dockerfile -t giangaws/${_service}-service:${_buildnumber} ."
-  // sh "docker login --username giangaws --password && docker push giangaws/${_service}-service:${_buildnumber}"
-  // docker.withRegistry('https://registry-1.docker.io/v2/', 'dockerhub') {
-  docker.withRegistry('https://registry.oneicc.vn', 'harbor') {
-    app.push("${_buildnumber}")
-    // app.push("latest")
+  
+  post {
+    always {
+       cleanWs()
+    }
+        // failure {
+        //         echo 'failed'
+        //         wrap([$class: 'BuildUser']) {
+        //             sendTelegram("ON-COMATIC-DEV | <i>${params.Service}</i> | ${JOB_NAME} | TAG ${params.TAG} | <b>FAILED</b> by ${BUILD_USER} | ${BUILD_URL}")
+        //         }
+        // }
+        // aborted {
+        //         echo 'aborted'
+        //         wrap([$class: 'BuildUser']) {
+        //             sendTelegram("ON-COMATIC-DEV | <i>${params.Service}</i> | ${JOB_NAME} | TAG ${params.TAG} | <b>ABORTED OR TIMEOUT</b> by ${BUILD_USER} | ${BUILD_URL}")
+        //         }
+        // }
+        // success {
+        //         echo 'success'
+        //         wrap([$class: 'BuildUser']) {
+        //             sendTelegram("ON-COMATIC-DEV | <i>${params.Service}</i> | ${JOB_NAME} | TAG ${params.TAG} | <b>SUCCESS</b> by ${BUILD_USER} | ${BUILD_URL}")
+        //         }
+        // }
   }
-}
-
-def deploy(_env, _service, _buildnumber) {
-    sh  "cd ${_env}/app-${_service} \
-        && ls -l \
-        && sed -i \"s/BUILD_NUMBER/${_buildnumber}/g\" deployment.yaml \
-        && kubectl apply -f deployment.yaml --kubeconfig ~/.kube/config --record"
-
-}
-def rollout(_env,_namespace, _service) {
-  sh  "kubectl rollout status deployment ${_env}-${_service}-service -n ${_namespace}"
-}
-def cloneCode(repo, tag) {
-    checkout([$class: 'GitSCM',
-        branches: [[name: "${tag}"]],
-        doGenerateSubmoduleConfigurations: false,
-        extensions: [],
-        gitTool: 'Default',
-        submoduleCfg: [],
-        userRemoteConfigs: [[credentialsId: 'gitlab', url: "${repo}"]]
-    ])
 }
 def sendTelegram(message) {
     def encodedMessage = URLEncoder.encode(message, "UTF-8")
@@ -229,3 +142,68 @@ def sendTelegram(message) {
         return response
     }
 }
+def clonecode(repo){
+  withCredentials([gitUsernamePassword(credentialsId: 'Github', gitToolName: 'git-tool')]) {
+  sh "git clone --branch main --recursive ${repo} src-build/"
+}
+}
+def getconfigfe(_service){
+      dir ("src-build"){
+      sh 'pwd'
+      sh "rm -f src/config/app-config.json"
+      sh "chmod +x $WORKSPACE/${_service}/get-config-fe.sh"
+      sh "$WORKSPACE/${_service}/get-config-fe.sh"
+      sh "cat src/config/app-config.json"
+      }
+}
+def bebuild(_pathartifact,_versionnode) {
+      script {
+            sh "cd src-build \
+                  && dotnet restore \
+                  && dotnet build *.sln --configuration Release \
+                  && cd ${_pathartifact} \
+                  && dotnet publish -c Release -o out \
+                  && sudo n ${_versionnode} \
+                  && node --version \
+                  && npm --version \
+                  && yarn --version \
+                  && gulp --version \
+                  && sed -i \"s/Debug/Release/g\" gulpfile.js \
+                  && npm i -f \
+                  && gulp copy-modules \
+                  && cp appsettings.json out/ \
+                  && mkdir out/config \
+                  && cp appsettings.json out/config \
+                  && cp -r Modulars out/ "
+            sh "pwd"
+            sh "ls -la src-build/${_pathartifact}/out"
+            sh "cat src-build/${_pathartifact}/out/config/appsettings.json"
+            sh "cp -r src-build/${_pathartifact}/out $WORKSPACE/src-build/"
+      }
+}
+def febuild(_pathartifact,_versionnode) {
+      script {
+            sh "cd src-build \
+                  && sudo n ${_versionnode} \
+                  && node --version \
+                  && npm --version \
+                  && yarn --version \
+                  && gulp --version \
+                  && rm -rf src/app-configs/app-config.json src/app-configs/app-config.scss \
+                  && rsync -av /tmp/${_env}/app-config.json src/app-configs/ \
+                  && rsync -av /tmp/${_env}/app-config.scss src/app-configs/ \
+                  && cat src/app-configs/app-config.json \
+                  && cat src/app-configs/app-config.scss \
+                  && npm i \
+                  && npm run build-prod"
+      }
+}
+def getconfigbe(_pathartifact){
+      script {
+            sh "rm -rf src-build/SRC/Applications/${_pathartifact}/appsettings.json"
+            sh "chmod +x $WORKSPACE/${params.Service}/get-config-be.sh"
+            sh "$WORKSPACE/${params.Service}/get-config-be.sh"
+            sh "ls -la"
+      }
+}
+

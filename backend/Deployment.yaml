@@ -27,7 +27,7 @@ spec:
           readOnly: false
       containers:
         - name: imv-backend-service
-          image: registry.1retail-dev.asia/imv-dev/imv-backend-service:BUILD_NUMBER
+          image: registry.1retail-dev.asia/imv-dev/backend-service:BUILD_NUMBER
           imagePullPolicy: Always
           env:
             - name: TZ

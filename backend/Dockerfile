@@ -1,5 +1,5 @@
 
-FROM registry.1retail-dev.asia/dotnet-core-runtime:2.2
+FROM registry.1retail-dev.asia/system/dotnet-core-runtime:2.2
 ##ADD /home/src-build /temp/
 
 COPY out/ app/

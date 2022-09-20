@@ -48,7 +48,7 @@ pipeline {
                     case "frontend":
                           clonecode(dev_repo_imv)
                           sh "ls -lh"
-                          //getconfigbe("User.Application")
+                          getconfigfe("SRC/Frontend/fsm")
                           febuild("SRC/Frontend/fsm", "v16.14.2")
                           //efmigration("user")
                           break;
@@ -147,15 +147,6 @@ def clonecode(repo){
   sh "git clone --branch main --recursive ${repo} src-build/"
 }
 }
-def getconfigfe(_service){
-      dir ("src-build"){
-      sh 'pwd'
-      sh "rm -f src/config/app-config.json"
-      sh "chmod +x $WORKSPACE/${_service}/get-config-fe.sh"
-      sh "$WORKSPACE/${_service}/get-config-fe.sh"
-      sh "cat src/config/app-config.json"
-      }
-}
 def bebuild(_pathartifact,_versionnode) {
       script {
             sh "cd src-build \
@@ -186,18 +177,18 @@ def bebuild(_pathartifact,_versionnode) {
 def febuild(_pathartifact,_versionnode) {
       script {
             sh "cd src-build \
+                  && cd ${_pathartifact} \
                   && sudo n ${_versionnode} \
                   && node --version \
                   && npm --version \
                   && yarn --version \
                   && gulp --version \
-                  && rm -rf src/app-configs/app-config.json src/app-configs/app-config.scss \
-                  && rsync -av /tmp/${_env}/app-config.json src/app-configs/ \
-                  && rsync -av /tmp/${_env}/app-config.scss src/app-configs/ \
                   && cat src/app-configs/app-config.json \
                   && cat src/app-configs/app-config.scss \
                   && npm i \
                   && npm run build-prod"
+            sh "ls -la src-build/SRC/Frontend/fsm/dist/"
+            sh "cp -r src-build/SRC/Frontend/fsm/dist/ $WORKSPACE/src-build/"
       }
 }
 def getconfigbe(_pathartifact){
@@ -205,6 +196,14 @@ def getconfigbe(_pathartifact){
             sh "rm -rf src-build/SRC/Backend/${_pathartifact}/appsettings.json"
             sh "chmod +x $WORKSPACE/${params.Service}/get-config-be.sh"
             sh "$WORKSPACE/${params.Service}/get-config-be.sh"
+            sh "ls -la"
+      }
+}
+def getconfigfe(_pathartifact){
+      script {
+            sh "rm -f src-build/${_pathartifact}/src/app-configs/*"
+            sh "chmod +x $WORKSPACE/${params.Service}/get-config-fe.sh"
+            sh "$WORKSPACE/${params.Service}/get-config-fe.sh"
             sh "ls -la"
       }
 }

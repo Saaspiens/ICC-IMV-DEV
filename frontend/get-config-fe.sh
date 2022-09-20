@@ -1,0 +1,3 @@
+kubectl get cm imv-frontend-config -o jsonpath="{.data.app-config\.json}" -n imv-dev --kubeconfig ~/.kube/config > src-build/SRC/Frontend/fsm/src/app-configs/app-config.json
+kubectl get cm imv-frontend-config -o jsonpath="{.data.app-config\.scss}" -n imv-dev --kubeconfig ~/.kube/config > src-build/SRC/Frontend/fsm/src/app-configs/app-config.scss
+kubectl get cm imv-frontend-config -o jsonpath="{.data.app-config.development\.json}" -n imv-dev --kubeconfig ~/.kube/config > src-build/SRC/Frontend/fsm/src/app-configs/app-config.development.json

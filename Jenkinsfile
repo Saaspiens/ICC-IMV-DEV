@@ -28,7 +28,7 @@ pipeline {
   environment {
     registry = "https://registry-1.docker.io/v2/"
     registryCredential = 'dockerhub'
-    imageId = "registry.1retail-dev.asia/microservice-comatic-dev/${params.Service}:$BUILD_NUMBER"
+    imageId = "registry.1retail-dev.asia/imv-dev/${params.Service}:$BUILD_NUMBER"
     docker_registry = 'https://registry.1retail-dev.asia'
     docker_creds = credentials('harbor')
   }

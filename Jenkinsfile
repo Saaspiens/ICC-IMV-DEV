@@ -159,6 +159,8 @@ def getconfigfe(_service){
 def bebuild(_pathartifact,_versionnode) {
       script {
             sh "cd src-build \
+                  && cd SRC \
+                  && cd Backend \
                   && dotnet restore \
                   && dotnet build *.sln --configuration Release \
                   && cd ${_pathartifact} \

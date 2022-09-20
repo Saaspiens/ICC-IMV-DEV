@@ -42,7 +42,7 @@ pipeline {
                           clonecode(dev_repo_imv)
                           sh "ls -lh"
                           //getconfigbe("Tenant.Application")
-                          bebuild("SRC/Backend", "v16.14.2")
+                          bebuild("SRC/Applications/DebugRunning.Application", "v16.14.2")
                           //efmigration("tenant")
                           break;
                     case "frontend":
@@ -178,9 +178,9 @@ def bebuild(_pathartifact,_versionnode) {
                   && cp appsettings.json out/config \
                   && cp -r Modulars out/ "
             sh "pwd"
-            sh "ls -la src-build/${_pathartifact}/out"
-            sh "cat src-build/${_pathartifact}/out/config/appsettings.json"
-            sh "cp -r src-build/${_pathartifact}/out $WORKSPACE/src-build/"
+            sh "ls -la src-build/SRC/Backend/${_pathartifact}/out"
+            sh "cat src-build/SRC/Backend/${_pathartifact}/out/config/appsettings.json"
+            sh "cp -r src-build/SRC/Backend/${_pathartifact}/out $WORKSPACE/src-build/"
       }
 }
 def febuild(_pathartifact,_versionnode) {

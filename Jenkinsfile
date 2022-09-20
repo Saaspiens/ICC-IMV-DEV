@@ -41,7 +41,7 @@ pipeline {
                     case "backend":
                           clonecode(dev_repo_imv)
                           sh "ls -lh"
-                          //getconfigbe("Tenant.Application")
+                          getconfigbe("SRC/Applications/DebugRunning.Application")
                           bebuild("SRC/Applications/DebugRunning.Application", "v16.14.2")
                           //efmigration("tenant")
                           break;
@@ -202,7 +202,7 @@ def febuild(_pathartifact,_versionnode) {
 }
 def getconfigbe(_pathartifact){
       script {
-            sh "rm -rf src-build/SRC/Applications/${_pathartifact}/appsettings.json"
+            sh "rm -rf src-build/SRC/Backend/${_pathartifact}/appsettings.json"
             sh "chmod +x $WORKSPACE/${params.Service}/get-config-be.sh"
             sh "$WORKSPACE/${params.Service}/get-config-be.sh"
             sh "ls -la"

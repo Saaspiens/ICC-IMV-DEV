@@ -1,5 +1,5 @@
 
-FROM registry.1retail-dev.asia/system/dotnet-asp-runtime:6.0
+FROM registry.1retail-dev.asia/dotnet-core-runtime:2.2
 ##ADD /home/src-build /temp/
 
 COPY out/ app/

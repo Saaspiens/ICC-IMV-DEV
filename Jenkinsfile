@@ -162,7 +162,7 @@ def bebuild(_pathartifact,_versionnode) {
                   && yarn --version \
                   && gulp --version \
                   && sed -i \"s/Debug/Release/g\" gulpfile.js \
-                  && npm i -f \
+                  && sudo npm i -f \
                   && gulp copy-modules \
                   && cp appsettings.json out/ \
                   && mkdir out/config \

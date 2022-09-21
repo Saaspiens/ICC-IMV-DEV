@@ -187,8 +187,7 @@ def febuild(_pathartifact,_versionnode) {
                   && gulp --version \
                   && cat src/app-configs/app-config.json \
                   && cat src/app-configs/app-config.scss \
-                  && npm i \
-                  && npm install csstype \
+                  && npm i csstype@2.6.21 \
                   && npm run build-prod"
             sh "ls -la src-build/SRC/Frontend/fsm/dist/"
             sh "cp -r src-build/SRC/Frontend/fsm/dist/ $WORKSPACE/src-build/"

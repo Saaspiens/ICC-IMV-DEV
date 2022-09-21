@@ -180,11 +180,12 @@ def febuild(_pathartifact,_versionnode) {
             sh "cat src-build/${_pathartifact}/src/app-configs/app-config.scss"
             sh "cat src-build/${_pathartifact}/src/app-configs/app-config.development.json"
             sh "cd src-build/${_pathartifact} \
-                  && n ${_versionnode} \
+                  && sudo n ${_versionnode} \
                   && node --version \
                   && npm --version \
                   && yarn --version \
                   && gulp --version \
+                  && sudo npm install csstype \
                   && cat src/app-configs/app-config.json \
                   && cat src/app-configs/app-config.scss \
                   && npm i \

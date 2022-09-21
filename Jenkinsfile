@@ -191,7 +191,6 @@ def febuild(_pathartifact,_versionnode) {
                   && ls -la \
                   && npm install \
                   && npm i -f \
-                  && ls -la dist \
                   && npm run build-prod \
                   && npm run test \
                   && npm run lint"

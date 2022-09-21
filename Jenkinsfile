@@ -62,7 +62,6 @@ pipeline {
                             
                   currentBuild.displayName = "${params.Service}-${BUILD_NUMBER}-${params.TAG}"
                   echo "===================== BUILD DOCKER IMAGE ====================="
-                  sh "sudo n 16.14.2"
                   sh "node --version"
                   sh "cp ${params.Service}/* src-build/"
                   dir ("src-build"){

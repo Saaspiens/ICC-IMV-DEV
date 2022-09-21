@@ -187,7 +187,11 @@ def febuild(_pathartifact,_versionnode) {
                   && gulp --version \
                   && cat src/app-configs/app-config.json \
                   && cat src/app-configs/app-config.scss \
+                  && pwd \
+                  && ls -la \
                   && npm install \
+                  && ls -la src-build/${_pathartifact} \
+                  && ls -la src-build/${_pathartifact}/dist \
                   && npm run build-prod \
                   && npm run test \
                   && npm run lint"

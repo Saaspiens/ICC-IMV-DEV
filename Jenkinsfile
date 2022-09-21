@@ -180,9 +180,9 @@ def febuild(_pathartifact,_versionnode) {
             sh "cat src-build/${_pathartifact}/src/app-configs/app-config.scss"
             sh "cat src-build/${_pathartifact}/src/app-configs/app-config.development.json"
             sh "which node"
-            sh "rm -f /bin/node"
-            sh "sudo ln -s /usr/local/bin/node /bin"
             sh "cd src-build/${_pathartifact} \
+                  && rm -f /bin/node \
+                  && sudo ln -s /usr/local/bin/node /bin \
                   && sudo n ${_versionnode} \
                   && node --version \
                   && npm --version \

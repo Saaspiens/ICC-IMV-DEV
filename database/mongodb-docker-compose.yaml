@@ -1,0 +1,39 @@
+version: "3.8"
+services:
+  mongo-imv-backend-dev:
+    image: mongo:5.0
+    container_name: mongo-imv-backend-dev
+    environment:
+        - MONGO_INITDB_ROOT_USERNAME=root
+        - MONGO_INITDB_ROOT_PASSWORD=password
+    restart: unless-stopped
+    ports:
+      - "7003:27017"
+    networks:
+      - dms-network
+    volumes:
+      - dms-database-dev:/data/db/mongodb-imv-dev
+  mongo-imv-backend-dev-express:
+    image: mongo-express
+    container_name: mexpress-imv-backend-dev
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=root
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+      - ME_CONFIG_MONGODB_URL=mongodb://root:password@mongo-imv-backend-dev:27017/?authSource=admin
+      - ME_CONFIG_BASICAUTH_USERNAME=mexpress
+      - ME_CONFIG_BASICAUTH_PASSWORD=mexpress
+    links:
+      - mongo-imv-backend-dev
+    restart: unless-stopped
+    ports:
+      - "7004:8081"
+    networks:
+      - dms-network
+
+volumes:
+  dms-database-dev:
+    driver: local
+networks:
+  dms-network:
+    external: true
+    driver: bridge

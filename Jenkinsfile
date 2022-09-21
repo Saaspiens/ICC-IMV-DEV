@@ -185,7 +185,6 @@ def febuild(_pathartifact,_versionnode) {
                   && npm --version \
                   && yarn --version \
                   && gulp --version \
-                  && sudo npm install csstype \
                   && cat src/app-configs/app-config.json \
                   && cat src/app-configs/app-config.scss \
                   && npm i \

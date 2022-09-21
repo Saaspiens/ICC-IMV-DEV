@@ -49,7 +49,7 @@ pipeline {
                           clonecode(dev_repo_imv)
                           sh "ls -lh"
                           getconfigfe("SRC/Frontend/fsm")
-                          febuild("SRC/Frontend/fsm", "v16.14.2")
+                          febuild("SRC/Frontend/fsm", "v10.24.1")
                           //efmigration("user")
                           break;
               }

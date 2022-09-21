@@ -180,7 +180,7 @@ def febuild(_pathartifact,_versionnode) {
             sh "cat src-build/${_pathartifact}/src/app-configs/app-config.scss"
             sh "cat src-build/${_pathartifact}/src/app-configs/app-config.development.json"
             sh "cd src-build/${_pathartifact} \
-                  && sudo nvm use 12.18.0 \
+                  && nvm use 12.18.0 \
                   && sudo n ${_versionnode} \
                   && node --version \
                   && npm --version \

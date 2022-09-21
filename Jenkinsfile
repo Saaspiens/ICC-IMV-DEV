@@ -191,9 +191,7 @@ def febuild(_pathartifact,_versionnode) {
                   && gulp --version \
                   && pwd \
                   && ls -la \
-                  && npm cache clean --force \
-                  && npm install \
-                  && npm audit fix \
+                  && npm i \
                   && ls -la \
                   && npm run build-prod \
                   && npm run test \

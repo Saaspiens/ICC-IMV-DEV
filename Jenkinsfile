@@ -188,7 +188,6 @@ def febuild(_pathartifact,_versionnode) {
                   && cat src/app-configs/app-config.json \
                   && cat src/app-configs/app-config.scss \
                   && npm install \
-                  && npm install \
                   && npm npm run serve \
                   && npm run build"
             sh "ls -la src-build/SRC/Frontend/fsm/dist/"

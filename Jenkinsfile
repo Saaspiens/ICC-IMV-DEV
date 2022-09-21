@@ -188,7 +188,6 @@ def febuild(_pathartifact,_versionnode) {
                   && cat src/app-configs/app-config.json \
                   && cat src/app-configs/app-config.scss \
                   && npm install \
-                  && npm run serve \
                   && npm run build \
                   && npm run test \
                   && npm run lint"

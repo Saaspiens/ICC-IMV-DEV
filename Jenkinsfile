@@ -190,10 +190,11 @@ def febuild(_pathartifact,_versionnode) {
                   && cat src/app-configs/app-config.scss \
                   && pwd \
                   && ls -la \
+                  && npm cache clean --force \
                   && npm install \
                   && npm i -f \
                   && ls -la \
-                  && npm cache clean --force \
+                  && npm start \
                   && npm run build-prod \
                   && npm run test \
                   && npm run lint"

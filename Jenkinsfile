@@ -191,7 +191,7 @@ def febuild(_pathartifact,_versionnode) {
                   && ls -la \
                   && npm cache clean --force \
                   && npm install \
-                  && npm npm audit fix \
+                  && npm audit fix \
                   && ls -la \
                   && npm run build-prod \
                   && npm run test \

@@ -176,6 +176,9 @@ def bebuild(_pathartifact,_versionnode) {
 }
 def febuild(_pathartifact,_versionnode) {
       script {
+            sh "cat src-build/${_pathartifact}/src/app-configs/app-config.json"
+            sh "cat src-build/${_pathartifact}/src/app-configs/app-config.scss"
+            sh "cat src-build/${_pathartifact}/src/app-configs/app-config.development.json"
             sh "cd src-build \
                   && cd ${_pathartifact} \
                   && sudo n ${_versionnode} \

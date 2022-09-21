@@ -182,7 +182,6 @@ def febuild(_pathartifact,_versionnode) {
             sh "which node"
             sh "rm -f /bin/node"
             sh "sudo ln -s /usr/local/bin/node /bin"
-            sh "nvm use 12.18.0"
             sh "cd src-build/${_pathartifact} \
                   && sudo n ${_versionnode} \
                   && node --version \

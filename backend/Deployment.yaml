@@ -2,17 +2,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-service
+  name: imv-dev-backend-service
   namespace: imv-dev
 spec:
   selector:
     matchLabels:
-      run: imv-backend-service-dev
+      run: imv-dev-backend-service
   replicas: 1
   template:
     metadata:
       labels:
-        run: imv-backend-service-dev
+        run: imv-dev-backend-service
       annotations:
         consul.sendo.vn/inject: "false"
         configmap.reloader.stakater.com/reload: "imv-backend-config"
@@ -26,8 +26,8 @@ spec:
           claimName: pvc-imv-dev
           readOnly: false
       containers:
-        - name: imv-backend-service
-          image: registry.1retail-dev.asia/imv-dev/backend-service:BUILD_NUMBER
+        - name: imv-dev-backend-service
+          image: registry.1retail-dev.asia/imv-dev/imv-dev-backend-service:BUILD_NUMBER
           imagePullPolicy: Always
           env:
             - name: TZ
@@ -63,18 +63,18 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: backend-service
+  name: imv-dev-backend-service
   namespace: imv-dev
   labels:
     tier: golang_mod
-    run: imv-backend-service-dev
+    run: imv-dev-backend-service
 spec:
   ports:
     - port: 80
       targetPort: 80
       protocol: TCP
-      name: imv-backend-service-http
+      name: imv-dev-backend-service-http
 
   selector:
-    run: imv-backend-service-dev
+    run: imv-dev-backend-service
 

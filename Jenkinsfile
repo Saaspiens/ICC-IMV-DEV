@@ -92,7 +92,7 @@ pipeline {
               }
               timeout(time: 3000, unit: 'SECONDS') {
                 echo "===================== WAITING UNTIL SERVICE LISTEN PORT SUCCESS  ====================="
-                sh  "kubectl rollout status deployment ${params.Service}-service -n $namespace"
+                sh  "kubectl rollout status deployment imv-dev-${params.Service}-service -n $namespace"
               }
           }
     }

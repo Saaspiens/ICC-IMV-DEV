@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: imv-frontend-service
+  name: imv-dev-frontend-service
   namespace: imv-dev
 spec:
   selector:

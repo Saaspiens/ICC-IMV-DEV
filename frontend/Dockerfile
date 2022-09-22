@@ -15,7 +15,7 @@
 # RUN npm run build-prod
 # RUN ls -l /app/fsm/src/
 
-FROM nginx
+FROM nginx:alpine
 
 COPY dist/ /usr/share/nginx/html/
 

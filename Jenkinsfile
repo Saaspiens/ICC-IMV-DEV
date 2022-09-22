@@ -42,7 +42,7 @@ pipeline {
                           clonecode(dev_repo_imv)
                           sh "ls -lh"
                           getconfigbe("SRC/Applications/DebugRunning.Application")
-                          bebuild("SRC/Applications/DebugRunning.Application", "v16.14.2")
+                          bebuild("SRC/Applications/DebugRunning.Application", "v12.18.0")
                           //efmigration("tenant")
                           break;
                     case "frontend":

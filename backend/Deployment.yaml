@@ -7,12 +7,12 @@ metadata:
 spec:
   selector:
     matchLabels:
-      run: dev-imv-backend-service
+      run: imv-backend-service-dev
   replicas: 1
   template:
     metadata:
       labels:
-        run: dev-imv-backend-service
+        run: imv-backend-service-dev
       annotations:
         consul.sendo.vn/inject: "false"
         configmap.reloader.stakater.com/reload: "imv-backend-config"
@@ -67,7 +67,7 @@ metadata:
   namespace: imv-dev
   labels:
     tier: golang_mod
-    run: dev-imv-backend-service
+    run: imv-backend-service-dev
 spec:
   ports:
     - port: 80

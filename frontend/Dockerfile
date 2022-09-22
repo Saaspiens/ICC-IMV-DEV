@@ -29,5 +29,5 @@ RUN apk --no-cache add --update \
     && apk --no-cache add tzdata \
     && rm -rf /var/cache/apk/*
 
-#EXPOSE 80
-#CMD ["nginx", "-g", "daemon off;"]
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

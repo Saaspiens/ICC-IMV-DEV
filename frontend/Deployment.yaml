@@ -23,7 +23,7 @@ spec:
           name: imv-frontend-config
       - name: file-store
         persistentVolumeClaim:
-          claimName: pvc-imv-dev
+          claimName: imv-nfs-master2
           readOnly: false
       containers:
         - name: imv-dev-frontend-service

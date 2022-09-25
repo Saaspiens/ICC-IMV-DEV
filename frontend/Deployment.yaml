@@ -38,7 +38,7 @@ spec:
           #  - name: imv-frontend-config-volume
           #    mountPath: /app/config
             - name: file-store
-              mountPath: /data
+              mountPath: /usr/share/nginx/html/imgs/imv
           resources:
             limits:
               cpu: '0.4'

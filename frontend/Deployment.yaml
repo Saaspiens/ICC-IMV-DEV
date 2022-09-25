@@ -17,14 +17,14 @@ spec:
         consul.sendo.vn/inject: "false"
         configmap.reloader.stakater.com/reload: "imv-frontend-config"
     spec:
-      volumes:
-      - name: imv-frontend-config-volume
-        configMap:
-          name: imv-frontend-config
-      - name: file-store
-        persistentVolumeClaim:
-          claimName: imv-nfs-master2
-          readOnly: false
+      #volumes:
+      #- name: imv-frontend-config-volume
+      #  configMap:
+      #    name: imv-frontend-config
+      #- name: file-store
+      #  persistentVolumeClaim:
+      #    claimName: imv-nfs-master2
+      #    readOnly: false
       containers:
         - name: imv-dev-frontend-service
           image: registry.1retail-dev.asia/imv-dev/imv-dev-frontend-service:BUILD_NUMBER
@@ -34,11 +34,11 @@ spec:
               value: Asia/Ho_Chi_Minh
           ports:
             - containerPort: 80
-          volumeMounts:
-            - name: imv-frontend-config-volume
-              mountPath: /app/config
-            - name: file-store
-              mountPath: /usr/share/nginx/html/imgs/imv
+          #volumeMounts:
+          #  - name: imv-frontend-config-volume
+          #    mountPath: /app/config
+          #  - name: file-store
+          #    mountPath: /usr/share/nginx/html/imgs/imv
           resources:
             limits:
               cpu: '0.4'

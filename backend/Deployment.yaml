@@ -37,8 +37,8 @@ spec:
           volumeMounts:
             - name: imv-backend-config-volume
               mountPath: /app/config
-            #- name: file-store
-            #  mountPath: /data
+            - name: file-store
+              mountPath: /data
           resources:
             limits:
               cpu: '0.4'

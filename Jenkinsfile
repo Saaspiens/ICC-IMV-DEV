@@ -107,24 +107,24 @@ pipeline {
     always {
        cleanWs()
     }
-      //   failure {
-      //           echo 'failed'
-      //           wrap([$class: 'BuildUser']) {
-      //               sendTelegram("ON-IMV-DEV | <i>${params.Service}</i> | ${JOB_NAME} | TAG ${params.TAG} | <b>FAILED</b> by ${BUILD_USER} | ${BUILD_URL}")
-      //           }
-      //   }
-      //   aborted {
-      //           echo 'aborted'
-      //           wrap([$class: 'BuildUser']) {
-      //               sendTelegram("ON-IMV-DEV | <i>${params.Service}</i> | ${JOB_NAME} | TAG ${params.TAG} | <b>ABORTED OR TIMEOUT</b> by ${BUILD_USER} | ${BUILD_URL}")
-      //           }
-      //   }
-      //   success {
-      //           echo 'success'
-      //           wrap([$class: 'BuildUser']) {
-      //               sendTelegram("ON-IMV-DEV | <i>${params.Service}</i> | ${JOB_NAME} | TAG ${params.TAG} | <b>SUCCESS</b> by ${BUILD_USER} | ${BUILD_URL}")
-      //           }
-      //   }
+        failure {
+                echo 'failed'
+                wrap([$class: 'BuildUser']) {
+                    sendTelegram("ON-IMV-DEV | <i>${params.Service}</i> | ${JOB_NAME} | TAG ${params.TAG} | <b>FAILED</b> by ${BUILD_USER} | ${BUILD_URL}")
+                }
+        }
+        aborted {
+                echo 'aborted'
+                wrap([$class: 'BuildUser']) {
+                    sendTelegram("ON-IMV-DEV | <i>${params.Service}</i> | ${JOB_NAME} | TAG ${params.TAG} | <b>ABORTED OR TIMEOUT</b> by ${BUILD_USER} | ${BUILD_URL}")
+                }
+        }
+        success {
+                echo 'success'
+                wrap([$class: 'BuildUser']) {
+                    sendTelegram("ON-IMV-DEV | <i>${params.Service}</i> | ${JOB_NAME} | TAG ${params.TAG} | <b>SUCCESS</b> by ${BUILD_USER} | ${BUILD_URL}")
+                }
+        }
   }
 }
 def sendTelegram(message) {

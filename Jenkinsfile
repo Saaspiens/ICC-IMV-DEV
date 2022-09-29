@@ -107,24 +107,24 @@ pipeline {
     always {
        cleanWs()
     }
-        failure {
-                echo 'failed'
-                wrap([$class: 'BuildUser']) {
-                    sendTelegram("ON-IMV-DEV | <i>${params.Service}</i> | ${JOB_NAME} | TAG ${params.TAG} | <b>FAILED</b> by ${BUILD_USER} | ${BUILD_URL}")
-                }
-        }
-        aborted {
-                echo 'aborted'
-                wrap([$class: 'BuildUser']) {
-                    sendTelegram("ON-IMV-DEV | <i>${params.Service}</i> | ${JOB_NAME} | TAG ${params.TAG} | <b>ABORTED OR TIMEOUT</b> by ${BUILD_USER} | ${BUILD_URL}")
-                }
-        }
-        success {
-                echo 'success'
-                wrap([$class: 'BuildUser']) {
-                    sendTelegram("ON-IMV-DEV | <i>${params.Service}</i> | ${JOB_NAME} | TAG ${params.TAG} | <b>SUCCESS</b> by ${BUILD_USER} | ${BUILD_URL}")
-                }
-        }
+      //   failure {
+      //           echo 'failed'
+      //           wrap([$class: 'BuildUser']) {
+      //               sendTelegram("ON-IMV-DEV | <i>${params.Service}</i> | ${JOB_NAME} | TAG ${params.TAG} | <b>FAILED</b> by ${BUILD_USER} | ${BUILD_URL}")
+      //           }
+      //   }
+      //   aborted {
+      //           echo 'aborted'
+      //           wrap([$class: 'BuildUser']) {
+      //               sendTelegram("ON-IMV-DEV | <i>${params.Service}</i> | ${JOB_NAME} | TAG ${params.TAG} | <b>ABORTED OR TIMEOUT</b> by ${BUILD_USER} | ${BUILD_URL}")
+      //           }
+      //   }
+      //   success {
+      //           echo 'success'
+      //           wrap([$class: 'BuildUser']) {
+      //               sendTelegram("ON-IMV-DEV | <i>${params.Service}</i> | ${JOB_NAME} | TAG ${params.TAG} | <b>SUCCESS</b> by ${BUILD_USER} | ${BUILD_URL}")
+      //           }
+      //   }
   }
 }
 def sendTelegram(message) {
@@ -179,9 +179,11 @@ def febuild(_pathartifact,_versionnode) {
             sh "cat src-build/${_pathartifact}/src/app-configs/app-config.scss"
             sh "cat src-build/${_pathartifact}/src/app-configs/app-config.development.json"
             sh "which node"
+            sh "rm -f /root/.nvm/versions/node/v12.18.0/bin/node"
             sh "cd src-build/${_pathartifact} \
                   && rm -f /bin/node \
                   && sudo ln -s /usr/local/bin/node /bin \
+                  && sudo ln -s /usr/local/bin/node /root/.nvm/versions/node/v12.18.0/bin \
                   && sudo n ${_versionnode} \
                   && node --version \
                   && npm --version \

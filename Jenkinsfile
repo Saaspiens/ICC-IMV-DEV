@@ -148,6 +148,7 @@ def clonecode(repo){
 }
 def bebuild(_pathartifact,_versionnode) {
       script {
+            sh "which node"
             sh "cd src-build \
                   && cd SRC \
                   && cd Backend \
